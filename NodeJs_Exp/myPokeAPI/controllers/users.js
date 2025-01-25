@@ -1,8 +1,9 @@
 const uuid = require('uuid');
 const crypto = require('../crypto.js');
 const teams = require('./teams');
+const { use } = require('chai');
 
-const userDatabase = {};
+let userDatabase = {};
 // userId -> userData
 
 const registerUser = (userName, password) => {
@@ -15,6 +16,10 @@ const registerUser = (userName, password) => {
     }
     teams.bootstrapTeam(userId);
 }
+
+const cleanUpUser = () => {
+    userDatabase = {}; // Empty the user database for testing
+};
 
 const getUser = (userId) => {
     return userDatabase[userId];
@@ -45,3 +50,4 @@ exports.registerUser = registerUser;
 exports.checkUserCredentials = checkUserCredentials;
 exports.getUserIdFromUserName = getUserIdFromUserName;
 exports.getUser = getUser;
+exports.cleanUpUser = cleanUpUser;
