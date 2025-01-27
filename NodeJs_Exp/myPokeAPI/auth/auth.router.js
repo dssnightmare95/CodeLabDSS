@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 // Controllers
-const usersController = require('../controllers/users');
+const usersController = require('./users.controller');
 usersController.registerUser('bettatech', '1234');
 usersController.registerUser('mastermind', '4321');
 
@@ -24,7 +24,6 @@ router.route('/login')
         // Comprobamos credenciales
         usersController.checkUserCredentials(req.body.user, req.body.password, (err, result) => {
             // Si no son validas, error
-            console.log(result);
             if (err || !result) {
                 return res.status(401).json({message: 'Invalid credentials'});
             }

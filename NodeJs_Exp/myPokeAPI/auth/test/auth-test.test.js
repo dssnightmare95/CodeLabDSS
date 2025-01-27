@@ -3,8 +3,8 @@ const chaiHttp = require('chai-http');
 
 chai.use(chaiHttp);
 
-const app = require('../app').app;
-const usersController = require('../controllers/users');
+const app = require('../../app').app;
+const usersController = require('../users.controller');
 
 before((done) => {
     usersController.registerUser('bettatech', '1234');
