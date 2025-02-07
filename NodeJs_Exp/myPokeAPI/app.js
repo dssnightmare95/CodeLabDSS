@@ -1,12 +1,12 @@
 const express = require('express');
-const bodyParser = require('body-parser');
+const middleware = require('./middlewares');
 
 // Routes
 const authRoutes = require('./auth/auth.router').router;
 const teamsRoutes = require('./teams/teams.router').router;
 
 const app = express();
-app.use(bodyParser.json());
+middleware.setupMiddlewares(app);
 
 const port = 3000;
 
