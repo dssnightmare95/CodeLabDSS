@@ -1,0 +1,57 @@
+version: '3.9'
+services:
+  backend:
+    container_name: backend
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgres://dsibaja:dockerLab1@db:5432/dockerLab
+      - JWT_SECRET=MyChe3ssSecret
+      - CHOKIDAR_USEPOLLING=true
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile.backend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./backend:/app
+  db:
+    image: postgres:15
+    container_name: postgres_db
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: dsibaja
+      POSTGRES_PASSWORD: dockerLab1
+      POSTGRES_DB: dockerLab
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+  
+volumes:
+    db_data:
+
+
+
+
+
+
+
+    # frontend:
+    #   build:
+    #     context: ./frontend
+    #     dockerfile: Dockerfile.frontend
+    #   ports:
+    #     - "3000:3000"
+    #   volumes:
+    #     - ./frontend:/app
+    #     - /app/node_modules
+    #   command: npm start
+    #   develop:
+    #     watch:
+    #       action: sync
+    #       path: ./frontend
+    #       target: /app
+    #       action: rebuild
+    #       path: package.json
