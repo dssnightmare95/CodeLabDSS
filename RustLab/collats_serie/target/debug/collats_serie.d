@@ -1,0 +1,1 @@
+C:\Users\diego\OneDrive\Documentos\Repositories\CodeLabDSS\RustLab\collats_serie\target\debug\collats_serie.exe: C:\Users\diego\OneDrive\Documentos\Repositories\CodeLabDSS\RustLab\collats_serie\src\main.rs
