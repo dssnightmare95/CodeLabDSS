@@ -1,1 +1,3 @@
 DockerLab/backend/node_modules/
+.env
+target/
