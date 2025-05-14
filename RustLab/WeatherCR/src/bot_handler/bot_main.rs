@@ -5,9 +5,19 @@ use teloxide::dispatching::UpdateHandler;
 use teloxide::dispatching::dialogue;
 use std::env;
 use dotenv::dotenv;
+use std::sync::LazyLock;
+
+use crate::google_apis::weather_api::get_weater_information;
 
 type MyDialogue = Dialogue<State, InMemStorage<State>>;
 pub type HandlerResult = Result<(), Box<dyn std::error::Error + Send + Sync>>;
+
+static TELEGRAM_TOKEN: LazyLock<String> = LazyLock::new(|| {
+    env::var("TELEGRAM_BOT_TOKEN").expect("TELOXIDE_TOKEN no está definida")
+});
+static GOOGLE_API_TOKEN: LazyLock<String> = LazyLock::new(|| {
+    env::var("GOOGLE_API_KEY").expect("GOOGLE_API_KEY no está definida")
+});
 
 #[derive(Clone, Default, Debug)]
 enum State {
@@ -42,8 +52,7 @@ pub async fn run_bot() {
     pretty_env_logger::init();
     log::info!("Starting bot...");
 
-    let token = env::var("TELEGRAM_BOT_TOKEN").expect("TELOXIDE_TOKEN no está definida");
-    let bot = Bot::new(token);
+    let bot = Bot::new(TELEGRAM_TOKEN.clone());
 
     let commands = Command::bot_commands()
         .iter()
@@ -128,11 +137,11 @@ async fn dialogue_handler(bot: Bot, msg: Message, dialogue: MyDialogue, state: S
         }
         State::WaitingCountry { location, province } => {
             if let Some(text) = msg.text() {
-                bot.send_message(msg.chat.id, format!("Obtaining the climate for {}, {} en {}...", location, province, text)).await?;
+                let country = text.to_string();
+                bot.send_message(msg.chat.id, format!("Obtaining the climate for {}, {} en {}...", location, province, country)).await?;
                 dialogue.exit().await?;
-                // Aquí iría la lógica para obtener el clima usando la ubicación, provincia y país.
-                // Por ahora, solo enviamos un mensaje de confirmación.
-                bot.send_message(msg.chat.id, format!("¡Done! The climate for {}, {} ({}) is... (simulation)", location, province, text)).await?;
+                let weather_info: String = get_weater_information(location.clone(), province.clone(), country.clone(), GOOGLE_API_TOKEN.clone()).await?;
+                bot.send_message(msg.chat.id, weather_info).await?;
                 dialogue.exit().await?;
             } else {
                 bot.send_message(msg.chat.id, "Please send me a valid name" ).await?;
