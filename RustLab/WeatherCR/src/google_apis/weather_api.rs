@@ -1,6 +1,7 @@
 use reqwest::Client;
 use serde_json::Value;
 
+#[derive(Debug, Clone, Copy)]
 struct Coordinates {
     lat: f64,
     lng: f64,
@@ -11,6 +12,7 @@ impl Coordinates {
     }
 }
 
+#[derive(Debug, Clone)]
 struct Weather {
     weather_condition: String,
     temperature: f64,
@@ -71,6 +73,24 @@ async fn get_weather(location_coord: Coordinates, api_key: String) -> Result<Wea
     Ok(weather)
 } 
 
+
+async fn get_inverted_coordinates(coordinates: Coordinates, api_key: String) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
+    let url = format!(
+        "https://maps.googleapis.com/maps/api/geocode/json?latlng={},{}&key={}",
+        coordinates.lat.clone().to_string(), coordinates.lng.clone().to_string(), api_key
+    );
+    let client = Client::new();
+    let response = client
+        .get(&url)
+        .send()
+        .await?
+        .json::<Value>()
+        .await?;
+
+
+    Ok(response["results"][2]["formatted_address"].as_str().unwrap().to_string())
+}
+
 pub async fn get_weater_information(location: String, province: String, country: String, google_api_key: String) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
     match get_coordinates(location.clone(), province.clone(), country.clone(), google_api_key.clone()).await {
         Ok(coordinates_data) => {
@@ -95,4 +115,24 @@ pub async fn get_weater_information(location: String, province: String, country:
 
         }
     }
+}
+
+pub async fn get_weater_information_from_location(lat: f64, lng: f64, google_api_key: String) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
+    let coordinates_data = Coordinates::new(lat, lng);
+    
+    let location_name = get_inverted_coordinates(coordinates_data, google_api_key.clone()).await?;
+    let weather_data = get_weather(coordinates_data, google_api_key.clone()).await?;
+
+    let weather_info = format!(
+        "🌤️ The weather in {} is\nWeather Condition: {}\nTemperature: {}°C\nFeels Like: {}°C\nHumidity: {}%\nPrecipitation Probability: {}%",
+        location_name,
+        weather_data.weather_condition,
+        weather_data.temperature,
+        weather_data.feels_like,
+        weather_data.humidity,
+        weather_data.precipitation_probability
+    );
+    
+    Ok(weather_info)
+
 }
