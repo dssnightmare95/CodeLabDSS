@@ -73,7 +73,7 @@ async fn get_weather(location_coord: Coordinates, api_key: String) -> Result<Wea
 
 #[tokio::main]
 async fn main() -> HandlerRequest {
-    let api_key: String = "AIzaSyBoLzYE1EY5v1YH-bzJpF8PjIpSDjnj1ek".to_string();
+    let api_key: String = "8888".to_string();
     let location: String = "San José".to_string();
     let province: String = "San José".to_string();
     let country: String = "Costa Rica".to_string();
